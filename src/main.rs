@@ -59,5 +59,9 @@ fn main() {
         exit(1);
     }
 
-    println!("{}", message.to_string())
+    let exposure = parsed["exposure"].as_f64().expect("Expected exposure");
+    let leverage_deribit = parsed["leverage_deribit"].as_f64().expect("Expected Deribit leverage");
+    let leverage_bybit = parsed["leverage_bybit"].as_f64().expect("Expected Bybit leverage");
+
+    println!("Exposure: {:.8}\nLeverage: {:.2} {:.2}", exposure, leverage_deribit, leverage_bybit);
 }
