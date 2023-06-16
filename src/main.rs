@@ -39,29 +39,33 @@ fn main() {
         exit(1);
     }
 
-    let message = match socket.read_message() {
-        Ok(m) => m,
-        Err(_) => {
-            println!("Error reading message");
+    loop {
+        let message = match socket.read_message() {
+            Ok(m) => m,
+            Err(_) => {
+                println!("Error reading message");
+                exit(1);
+            }
+        };
+
+        if !message.is_text() {
+            println!("Unexpected message type");
             exit(1);
         }
-    };
 
-    if !message.is_text() {
-        println!("Unexpected message type");
-        exit(1);
+        let parsed: serde_json::Value = serde_json::from_str(message.to_text().unwrap()).expect("Can't parse JSON");
+
+        if parsed["error"].is_string() {
+            println!("Authentication error");
+            exit(1);
+        }
+
+        let exposure = parsed["exposure"].as_f64().expect("Expected exposure");
+        let leverage_deribit = parsed["leverage_deribit"].as_f64().expect("Expected Deribit leverage");
+        let leverage_bybit = parsed["leverage_bybit"].as_f64().expect("Expected Bybit leverage");
+
+        println!("\x1b[2J\x1b[H\x1b[?25l");
+        println!("  Exposure: {:.8}", exposure);
+        println!("  Leverage: {:.2} {:.2}", leverage_deribit, leverage_bybit);
     }
-
-    let parsed: serde_json::Value = serde_json::from_str(message.to_text().unwrap()).expect("Can't parse JSON");
-
-    if parsed["error"].is_string() {
-        println!("Authentication error");
-        exit(1);
-    }
-
-    let exposure = parsed["exposure"].as_f64().expect("Expected exposure");
-    let leverage_deribit = parsed["leverage_deribit"].as_f64().expect("Expected Deribit leverage");
-    let leverage_bybit = parsed["leverage_bybit"].as_f64().expect("Expected Bybit leverage");
-
-    println!("Exposure: {:.8}\nLeverage: {:.2} {:.2}", exposure, leverage_deribit, leverage_bybit);
 }
