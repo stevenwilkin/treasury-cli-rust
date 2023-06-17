@@ -4,7 +4,7 @@ CLI UI for [Treasury](https://github.com/stevenwilkin/treasury)
 
 ## Building
 
-	cargo build
+	cargo build --release
 
 ## Running
 
