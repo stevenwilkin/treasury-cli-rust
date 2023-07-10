@@ -5,6 +5,19 @@ use dotenv::dotenv;
 use url::Url;
 use tungstenite::connect;
 use serde_json;
+use serde::Deserialize;
+
+#[derive(Deserialize,Debug)]
+struct Message {
+    #[serde(default)]
+    error: String,
+    #[serde(default)]
+    exposure: f64,
+    #[serde(default)]
+    leverage_deribit: f64,
+    #[serde(default)]
+    leverage_bybit: f64,
+}
 
 fn main() {
     dotenv().ok();
@@ -53,19 +66,15 @@ fn main() {
             exit(1);
         }
 
-        let parsed: serde_json::Value = serde_json::from_str(message.to_text().unwrap()).expect("Can't parse JSON");
+        let m: Message = serde_json::from_str(message.to_text().unwrap()).unwrap();
 
-        if parsed["error"].is_string() {
+        if m.error != "" {
             println!("Authentication error");
             exit(1);
         }
 
-        let exposure = parsed["exposure"].as_f64().expect("Expected exposure");
-        let leverage_deribit = parsed["leverage_deribit"].as_f64().expect("Expected Deribit leverage");
-        let leverage_bybit = parsed["leverage_bybit"].as_f64().expect("Expected Bybit leverage");
-
         println!("\x1b[2J\x1b[H\x1b[?25l");
-        println!("  Exposure: {:.8}", exposure);
-        println!("  Leverage: {:.2} {:.2}", leverage_deribit, leverage_bybit);
+        println!("  Exposure: {:.8}", m.exposure);
+        println!("  Leverage: {:.2} {:.2}", m.leverage_deribit, m.leverage_bybit);
     }
 }
