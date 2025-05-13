@@ -1,6 +1,6 @@
-# treasury-cli
+# treasury-cli-rust
 
-CLI UI for [Treasury](https://github.com/stevenwilkin/treasury)
+Rust port of [treasury-cli](https://github.com/stevenwilkin/treasury-cli)
 
 ## Building
 
